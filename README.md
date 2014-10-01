@@ -22,3 +22,10 @@ Two libraries that are used in the arduino sketch. Need to be installed (unzippe
 installed arduino environment - on a mac this means opening the arduino package and navigating down to:
 
     Contents > Resources > Java > libraries
+
+### other libs
+
+Might check in on:
+
+* http://www.pjrc.com/teensy/td_libs_OneWire.html
+* http://www.milesburton.com/?title=Dallas_Temperature_Control_Library
