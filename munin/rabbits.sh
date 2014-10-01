@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Monitor FD count - was written to test the runaway DLNA process count bug
+# Monitor temperatures
 
 if [ "$1" = "config" ]; then
     echo 'graph_title Rabbit Temperatures'
