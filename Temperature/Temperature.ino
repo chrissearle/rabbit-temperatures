@@ -10,7 +10,7 @@
 
 const int ledPin = 7;
 
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0x7D, 0x54 };
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xFB, 0x6C };
 
 OneWire oneWireSleepingArea(TEMPERATURE_SLEEPING_AREA);
 DallasTemperature sensorSleepingArea(&oneWireSleepingArea);
