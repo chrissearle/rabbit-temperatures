@@ -5,6 +5,10 @@ ethernet with poe shield (providing both network and power).
 
 ## Parts
 
+### Circuit
+
+![Circuit diagram](circuit.png)
+
 ### Temperature
 
 This is the arduino sketch for the project.
@@ -18,14 +22,9 @@ Simple munin script that munin will use to poll the arduino.
 
 ### libs
 
-Two libraries that are used in the arduino sketch. Need to be installed (unzipped) to Java/libraries in the
-installed arduino environment - on a mac this means opening the arduino package and navigating down to:
+Two libraries that are used in the arduino sketch. In the app - choose Sketch > Import Library > Add Library and add both zips - they should then appear under Sketch > Import Library > Contributed
 
-    Contents > Resources > Java > libraries
+The libraries are from:
 
-### other libs
-
-Might check in on:
-
-* http://www.pjrc.com/teensy/td_libs_OneWire.html
-* http://www.milesburton.com/?title=Dallas_Temperature_Control_Library
+* http://milesburton.com/Main_Page?title=Dallas_Temperature_Control_Library - currently using 372Beta (this is the same zip - just rezipped to remove hyphens from the folder name - which was invalid at import)
+* http://www.pjrc.com/teensy/td_libs_OneWire.html - OneWire 2
