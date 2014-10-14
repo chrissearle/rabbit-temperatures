@@ -3,6 +3,18 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+#define DEBUG
+
+#ifdef DEBUG
+#define DEBUG_PRINT(x)  Serial.print (x)
+#define DEBUG_PRINTLN(x)  Serial.println (x)
+#define DEBUG_WRITE(x)  Serial.write (x)
+#else
+#define DEBUG_PRINT(x)
+#define DEBUG_PRINTLN(x)
+#define DEBUG_WRITE(x)
+#endif
+
 // Code based on tutorial from http://www.raywenderlich.com/38841/arduino-tutorial-temperature-sensor
 
 #define TEMPERATURE_SLEEPING_AREA 5
@@ -10,7 +22,8 @@
 
 const int ledPin = 7;
 
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xFB, 0x6C };
+byte mac[] = { 
+  0x90, 0xA2, 0xDA, 0x0D, 0xFB, 0x6C };
 
 OneWire oneWireSleepingArea(TEMPERATURE_SLEEPING_AREA);
 DallasTemperature sensorSleepingArea(&oneWireSleepingArea);
@@ -22,18 +35,22 @@ EthernetServer server(80);
 
 void setup(void) {
   pinMode(ledPin, OUTPUT);
+
+#ifdef DEBUG
   Serial.begin(9600);
-  Serial.println("LED Pin setup for output on pin");
-  
+#endif
+
+  DEBUG_PRINTLN("LED Pin setup for output on pin");
+
   digitalWrite(ledPin, HIGH);
-  
+
   sensorSleepingArea.begin();
   sensorCage.begin();
-  
+
   // start the Ethernet connection and the server:
-  Serial.println("Trying to get an IP address using DHCP");
+  DEBUG_PRINTLN("Trying to get an IP address using DHCP");
   if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
+    DEBUG_PRINTLN("Failed to configure Ethernet using DHCP");
     while (true) {
       digitalWrite(ledPin, HIGH);
       delay(200);
@@ -41,13 +58,12 @@ void setup(void) {
       delay(200);
     }
   }
-  Serial.println();
+
   // start listening for clients
-  Serial.print("server is at ");
-  Serial.println(Ethernet.localIP());
-  
+  DEBUG_PRINT("server is at ");
+  DEBUG_PRINTLN(Ethernet.localIP());
+
   digitalWrite(ledPin, LOW);
-  
 }
 
 
@@ -55,17 +71,17 @@ void loop(void) {
 
   float temperatureSleepingArea;
   float temperatureCage;
-  
+
   // listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
-    Serial.println("new client");
+    DEBUG_PRINTLN("new client");
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        Serial.write(c);
+        DEBUG_WRITE(c);
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
@@ -76,10 +92,10 @@ void loop(void) {
           client.println("Server: Arduino");
           client.println("Connnection: close");
           client.println();
-          
+
           temperatureSleepingArea = readTemperatureCelsius(sensorSleepingArea);
           temperatureCage = readTemperatureCelsius(sensorCage);
-          
+
           client.print("cage.value: ");
           client.print(temperatureCage);
           client.println();
@@ -102,7 +118,7 @@ void loop(void) {
     delay(1);
     // close the connection:
     client.stop();
-    Serial.println("client disonnected");
+    DEBUG_PRINTLN("client disonnected");
     blinkLED();
   }
 
@@ -113,8 +129,8 @@ float readTemperatureCelsius(DallasTemperature sensor) {
   float temperature = sensor.getTempCByIndex(0);
   //to read in Fahrenheit, we use Celsius for one form
   //float temperature = sensorsIndoor.getTempFByIndex(0);  
-  Serial.print("Celsius Temperature for device is: ");
-  Serial.println(temperature);  //zero is first sensor if we had multiple on bus
+  DEBUG_PRINT("Celsius Temperature for device is: ");
+  DEBUG_PRINTLN(temperature);  //zero is first sensor if we had multiple on bus
   return temperature;
 }
 
@@ -124,6 +140,7 @@ void blinkLED(void)
   delay(500);
   digitalWrite(ledPin, LOW);
   delay(500);
-  
+
   return;
 }
+
