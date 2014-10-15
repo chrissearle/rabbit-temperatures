@@ -7,7 +7,11 @@ ethernet with poe shield (providing both network and power).
 
 ### Circuit
 
+Updated to use parasitic power for the sensors (connect the plus wire of the sensor to ground).
+
 ![Circuit diagram](circuit.png)
+
+![Layout](layout.png)
 
 ### Temperature
 
