@@ -13,4 +13,4 @@ if [ "$1" = "config" ]; then
     exit 0
 fi
 
-curl -o - <url_to_arduino_here>
+curl -o - -s http://rabbits.home.chrissearle.org/
