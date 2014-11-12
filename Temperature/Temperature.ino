@@ -2,6 +2,7 @@
 #include <Ethernet.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <avr/wdt.h>
 
 #define DEBUG
 
@@ -93,15 +94,28 @@ void loop(void) {
           client.println("Connnection: close");
           client.println();
 
-          temperatureSleepingArea = readTemperatureCelsius(sensorSleepingArea);
-          temperatureCage = readTemperatureCelsius(sensorCage);
+          temperatureSleepingArea = readTemperatureCelsius(oneWireSleepingArea, sensorSleepingArea);
+          temperatureCage = readTemperatureCelsius(oneWireCage, sensorCage);
 
-          client.print("cage.value: ");
+          client.print("cage.value ");
           client.print(temperatureCage);
           client.println();
-          client.print("bedroom.value: ");
+          client.print("bedroom.value ");
           client.print(temperatureSleepingArea);
           client.println();
+          
+          // Handle error situation after returning -127. This will both prevent the munin code from getting a
+          // timeout and also log a -127 there so we can see how often it happens.
+          if (temperatureSleepingArea < -100 || temperatureCage < -100) { // -127 is disconnected
+            DEBUG_PRINTLN("Disconnected sensor detected - restarting");
+    
+            // Start a watchdog and then timeout to force a reset
+            wdt_enable(WDTO_15MS);
+            while(1)
+            {
+            }
+          }
+
           break;
         }
         if (c == '\n') {
@@ -124,11 +138,10 @@ void loop(void) {
 
 }
 
-float readTemperatureCelsius(DallasTemperature sensor) {
+float readTemperatureCelsius(OneWire oneWire, DallasTemperature sensor) {
   sensor.requestTemperatures();
   float temperature = sensor.getTempCByIndex(0);
-  //to read in Fahrenheit, we use Celsius for one form
-  //float temperature = sensorsIndoor.getTempFByIndex(0);  
+
   DEBUG_PRINT("Celsius Temperature for device is: ");
   DEBUG_PRINTLN(temperature);  //zero is first sensor if we had multiple on bus
   return temperature;
