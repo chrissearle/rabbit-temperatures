@@ -7,8 +7,6 @@ ethernet with poe shield (providing both network and power).
 
 ### Circuit
 
-Updated to use parasitic power for the sensors (connect the plus wire of the sensor to ground).
-
 ![Circuit diagram](circuit.png)
 
 ![Layout](layout.png)
@@ -17,7 +15,8 @@ Updated to use parasitic power for the sensors (connect the plus wire of the sen
 
 This is the arduino sketch for the project.
 
-Heavily based on [this tutorial from raywenderlich.com](http://www.raywenderlich.com/38841/arduino-tutorial-temperature-sensor)
+Heavily based on [this tutorial from raywenderlich.com](http://www.raywenderlich.com/38841/arduino-tutorial-temperature-sensor),
+updated based on [this wiki page](http://arduino-info.wikispaces.com/Brick-Temperature-DS18B20) for multiple devices on one bus
 but returning output suitable for munin instead of JSON.
 
 ### munin
@@ -32,3 +31,11 @@ The libraries are from:
 
 * http://milesburton.com/Main_Page?title=Dallas_Temperature_Control_Library - currently using 372Beta (this is the same zip - just rezipped to remove hyphens from the folder name - which was invalid at import)
 * http://www.pjrc.com/teensy/td_libs_OneWire.html - OneWire 2
+
+### fritzing
+
+Source file for fritzing to generate layout image.
+
+### mccad
+
+Source file for McCad Schematics_Lite to generate circuit image.
