@@ -17,45 +17,58 @@
 #endif
 
 // Code based on tutorial from http://www.raywenderlich.com/38841/arduino-tutorial-temperature-sensor
+// with modifications from http://arduino-info.wikispaces.com/Brick-Temperature-DS18B20
 
-#define TEMPERATURE_SLEEPING_AREA 5
-#define TEMPERATURE_CAGE 6
+#define BUS 7
+#define STATUS_LED 8
 
-const int ledPin = 7;
+DeviceAddress CageProbe = { 0x28, 0x60, 0xC8, 0x05, 0x06, 0x00, 0x00, 0x91 }; 
+DeviceAddress BedroomProbe = { 0x28, 0xE0, 0xEB, 0x04, 0x06, 0x00, 0x00, 0x42 };
 
-byte mac[] = { 
-  0x90, 0xA2, 0xDA, 0x0D, 0xFB, 0x6C };
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xFB, 0x6C };
 
-OneWire oneWireSleepingArea(TEMPERATURE_SLEEPING_AREA);
-DallasTemperature sensorSleepingArea(&oneWireSleepingArea);
-
-OneWire oneWireCage(TEMPERATURE_CAGE);
-DallasTemperature sensorCage(&oneWireCage);
+OneWire oneWire(BUS);
+DallasTemperature sensors(&oneWire);
 
 EthernetServer server(80);
 
 void setup(void) {
-  pinMode(ledPin, OUTPUT);
+  pinMode(STATUS_LED, OUTPUT);
 
 #ifdef DEBUG
   Serial.begin(9600);
 #endif
 
-  DEBUG_PRINTLN("LED Pin setup for output on pin");
+  digitalWrite(STATUS_LED, HIGH);
 
-  digitalWrite(ledPin, HIGH);
+  sensors.begin();
+  sensors.setResolution(CageProbe, 10);
+  sensors.setResolution(BedroomProbe, 10);
 
-  sensorSleepingArea.begin();
-  sensorCage.begin();
+  delay(1000);  
+  
+  sensors.requestTemperatures();
+
+  DEBUG_PRINT("Sleeping: ");
+  DEBUG_PRINT(readTemperatureCelsius(BedroomProbe));
+  DEBUG_PRINTLN();
+  
+  DEBUG_PRINT("Cage: ");
+  DEBUG_PRINT(readTemperatureCelsius(CageProbe));
+  DEBUG_PRINTLN();
+
+  digitalWrite(STATUS_LED, LOW);
+  delay(200);
+  digitalWrite(STATUS_LED, HIGH);
 
   // start the Ethernet connection and the server:
   DEBUG_PRINTLN("Trying to get an IP address using DHCP");
   if (Ethernet.begin(mac) == 0) {
     DEBUG_PRINTLN("Failed to configure Ethernet using DHCP");
     while (true) {
-      digitalWrite(ledPin, HIGH);
+      digitalWrite(STATUS_LED, HIGH);
       delay(200);
-      digitalWrite(ledPin, LOW);
+      digitalWrite(STATUS_LED, LOW);
       delay(200);
     }
   }
@@ -64,8 +77,8 @@ void setup(void) {
   DEBUG_PRINT("server is at ");
   DEBUG_PRINTLN(Ethernet.localIP());
 
-  digitalWrite(ledPin, LOW);
-}
+  digitalWrite(STATUS_LED, LOW);
+  }
 
 
 void loop(void) {
@@ -94,8 +107,10 @@ void loop(void) {
           client.println("Connnection: close");
           client.println();
 
-          temperatureSleepingArea = readTemperatureCelsius(oneWireSleepingArea, sensorSleepingArea);
-          temperatureCage = readTemperatureCelsius(oneWireCage, sensorCage);
+          sensors.requestTemperatures();
+
+          temperatureSleepingArea = readTemperatureCelsius(BedroomProbe);
+          temperatureCage = readTemperatureCelsius(CageProbe);
 
           client.print("cage.value ");
           client.print(temperatureCage);
@@ -138,20 +153,20 @@ void loop(void) {
 
 }
 
-float readTemperatureCelsius(OneWire oneWire, DallasTemperature sensor) {
-  sensor.requestTemperatures();
-  float temperature = sensor.getTempCByIndex(0);
+float readTemperatureCelsius(DeviceAddress probe) {
+  float temperature = sensors.getTempC(probe);
 
   DEBUG_PRINT("Celsius Temperature for device is: ");
-  DEBUG_PRINTLN(temperature);  //zero is first sensor if we had multiple on bus
+  DEBUG_PRINTLN(temperature);
+  
   return temperature;
 }
 
 void blinkLED(void)
 {
-  digitalWrite(ledPin, HIGH);
+  digitalWrite(STATUS_LED, HIGH);
   delay(500);
-  digitalWrite(ledPin, LOW);
+  digitalWrite(STATUS_LED, LOW);
   delay(500);
 
   return;
